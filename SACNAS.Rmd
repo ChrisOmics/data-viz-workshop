@@ -1,0 +1,62 @@
+---
+title: "SACNAS 2019 R studio session"
+output: html_notebook
+---
+This is to plot the graph seen in Natalie's blog post.
+The first thing to do is install and load the librarys. We have done this for you.
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+```
+
+
+The next thing to do is set the working directory, and read in the data.  The working directory (wd)is where you will be loading your from and saving you files to. Imagine it like the folder you have open on finder in mac or in windows. You can create a new project folder and put all your data in there if you want. We will name ours SACNAS_project (always try to eliminate white spaces in file names).
+
+
+```{r}
+#Put the name of the wd in quotes, if you start typing the location you can press tab to suggest the completeion of the location
+setwd("~/Desktop/SACNAS_project/")
+
+#Read in the file and store it as a data frame object. The data is seperated by commas (",")
+
+df<-read.csv("all_nsf_hon_and_reg.csv", sep=",")
+```
+
+Next if you type "df" in the console you can see your data. 
+
+You can also type str(df) to see the structure of your data.
+
+Our dataframe has 13078 objects and 6 variables.  These varibles are VECTORS of different types
+
+Lets see the dimensions of the data:
+```{r}
+df_fin$GRFP_awarded[which(df_fin$n>0)]<-"Yes"
+df_fin$GRFP_awarded<-"No"
+ggplot(data = df_fin, aes(x=GRFP_awarded, y= PAR_ED_PCT_1STGEN)) + geom_boxplot()
+```
+
+
+cleaning data
+```{r}
+df<-read.csv("all_nsf_hon_and_reg_clean.csv", sep=",")
+df2<-read.csv("MERGED2015_16.csv")
+
+##whichever columns you want to add, do it below
+df3 <-df2 %>% select(INSTNM, PAR_ED_PCT_1STGEN)
+df3 <-df2 %>% select(INSTNM, PAR_ED_PCT_1STGEN) %>% rename(bs_school = INSTNM)
+df_join <-inner_join(df, df3)
+grfp_count<-df %>% count(bs_school)
+df_fin<-left_join(df3, grfp_count)
+
+df_fin[is.na(df_fin)]<-0
+df_fin <- df_fin %>% filter(!is.na(as.numeric(as.character(PAR_ED_PCT_1STGEN))))
+df_fin$GRFP_awarded<-"No"
+df_fin$GRFP_awarded[which(df_fin$n>0)]<-"Yes"
+df_fin$PAR_ED_PCT_1STGEN <-as.numeric(as.character(df_fin$PAR_ED_PCT_1STGEN))
+df_fin$GRFP_awarded <-as.factor(df_fin$GRFP_awarded)
+ggplot(data = df_fin, aes(x=GRFP_awarded, y= PAR_ED_PCT_1STGEN)) + geom_boxplot()
+
+
+```
+
